@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Placient AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a0f2e;
+    --blue: #1a47c8;
+    --sky: #4f8ef7;
+    --accent: #00e5c3;
+    --gold: #f5c842;
+    --white: #f8f9ff;
+    --card: #141a3a;
+    --muted: #8a93b8;
+    --danger: #ff4f6d;
+    --success: #00c97a;
+    --gradient: linear-gradient(135deg, #1a47c8, #00e5c3);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--navy); color:var(--white); min-height:100vh; overflow-x:hidden; }
+  
+  /* PAGES */
+  .page { display:none; min-height:100vh; animation:fadeIn .4s ease; }
+  .page.active { display:flex; flex-direction:column; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+
+  /* TOP BAR */
+  .topbar { display:flex; align-items:center; justify-content:space-between; padding:18px 36px; background:rgba(10,15,46,.92); backdrop-filter:blur(12px); border-bottom:1px solid rgba(79,142,247,.15); position:sticky; top:0; z-index:100; }
+  .logo { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:-.5px; }
+  .logo span { font-size:.65em; font-weight:400; opacity:.7; -webkit-text-fill-color:#8a93b8; }
+
+  /* LANDING */
+  #pg-landing { justify-content:center; align-items:center; position:relative; overflow:hidden; }
+  .landing-bg { position:absolute; inset:0; z-index:0; }
+  .landing-bg::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 70% 60% at 50% 40%, rgba(26,71,200,.35) 0%, transparent 70%); }
+  .orb { position:absolute; border-radius:50%; filter:blur(80px); }
+  .orb1 { width:400px; height:400px; background:rgba(0,229,195,.12); top:-60px; right:-80px; }
+  .orb2 { width:350px; height:350px; background:rgba(26,71,200,.2); bottom:-80px; left:-60px; }
+  .landing-content { position:relative; z-index:1; text-align:center; padding:40px 20px; }
+  .landing-badge { display:inline-block; background:rgba(0,229,195,.1); border:1px solid rgba(0,229,195,.3); color:var(--accent); font-size:.78rem; font-weight:600; padding:6px 18px; border-radius:50px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:28px; }
+  .landing-title { font-family:'Syne',sans-serif; font-size:clamp(2.8rem,7vw,5.5rem); font-weight:800; line-height:1.05; margin-bottom:22px; }
+  .landing-title em { font-style:normal; background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .landing-sub { font-size:1.1rem; color:var(--muted); max-width:520px; margin:0 auto 44px; line-height:1.7; }
+  .btn-primary { display:inline-flex; align-items:center; gap:10px; background:var(--gradient); color:#fff; font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; padding:16px 40px; border-radius:50px; border:none; cursor:pointer; transition:transform .2s,box-shadow .2s; box-shadow:0 8px 32px rgba(26,71,200,.4); letter-spacing:.02em; }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 14px 40px rgba(26,71,200,.55); }
+  .btn-secondary { display:inline-flex; align-items:center; gap:8px; background:transparent; color:var(--white); font-size:.95rem; font-weight:500; padding:14px 32px; border-radius:50px; border:1.5px solid rgba(79,142,247,.4); cursor:pointer; transition:all .2s; }
+  .btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
+  .landing-stats { display:flex; gap:40px; justify-content:center; margin-top:56px; flex-wrap:wrap; }
+  .stat { text-align:center; }
+  .stat-val { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; color:var(--accent); }
+  .stat-label { font-size:.8rem; color:var(--muted); margin-top:4px; }
+
+  /* AUTH */
+  #pg-auth { justify-content:center; align-items:center; }
+  .auth-box { background:var(--card); border:1px solid rgba(79,142,247,.2); border-radius:24px; padding:44px 40px; width:100%; max-width:440px; margin:40px 20px; }
+  .auth-title { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:700; margin-bottom:6px; }
+  .auth-sub { color:var(--muted); font-size:.9rem; margin-bottom:28px; }
+  .auth-tabs { display:flex; background:rgba(255,255,255,.05); border-radius:12px; padding:4px; margin-bottom:28px; }
+  .auth-tab { flex:1; text-align:center; padding:10px; border-radius:9px; cursor:pointer; font-weight:600; font-size:.9rem; transition:all .2s; color:var(--muted); }
+  .auth-tab.active { background:var(--blue); color:#fff; }
+  .form-group { margin-bottom:18px; }
+  .form-label { font-size:.82rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:7px; display:block; }
+  .form-input { width:100%; background:rgba(255,255,255,.06); border:1.5px solid rgba(79,142,247,.2); color:var(--white); font-family:'DM Sans',sans-serif; font-size:.95rem; padding:12px 16px; border-radius:12px; outline:none; transition:border-color .2s; }
+  .form-input:focus { border-color:var(--sky); }
+  .form-input::placeholder { color:var(--muted); }
+  .form-error { color:var(--danger); font-size:.82rem; margin-top:6px; display:none; }
+  .form-hint { color:var(--accent); font-size:.83rem; cursor:pointer; text-align:right; margin-top:6px; }
+  .form-hint:hover { text-decoration:underline; }
+  .btn-full { width:100%; padding:14px; border-radius:12px; font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; border:none; cursor:pointer; transition:all .2s; }
+  .btn-blue { background:var(--gradient); color:#fff; box-shadow:0 6px 24px rgba(26,71,200,.35); }
+  .btn-blue:hover { box-shadow:0 10px 32px rgba(26,71,200,.5); transform:translateY(-1px); }
+  .divider { display:flex; align-items:center; gap:12px; margin:20px 0; color:var(--muted); font-size:.82rem; }
+  .divider::before,.divider::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.1); }
+
+  /* PROFILE SETUP */
+  #pg-profile { }
+  .profile-shell { display:flex; flex:1; }
+  .profile-sidebar { width:240px; background:rgba(20,26,58,.7); border-right:1px solid rgba(79,142,247,.12); padding:28px 20px; display:flex; flex-direction:column; gap:8px; flex-shrink:0; }
+  .sidebar-item { display:flex; align-items:center; gap:12px; padding:11px 16px; border-radius:12px; cursor:pointer; font-size:.9rem; font-weight:500; color:var(--muted); transition:all .2s; }
+  .sidebar-item:hover { background:rgba(79,142,247,.1); color:var(--white); }
+  .sidebar-item.active { background:rgba(26,71,200,.25); color:var(--sky); }
+  .sidebar-item svg { flex-shrink:0; }
+  .sidebar-sep { height:1px; background:rgba(255,255,255,.07); margin:8px 0; }
+  .sidebar-danger { color:var(--danger) !important; }
+  .sidebar-danger:hover { background:rgba(255,79,109,.1) !important; color:var(--danger) !important; }
+  .profile-main { flex:1; padding:36px 40px; overflow-y:auto; }
+  .page-heading { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:700; margin-bottom:4px; }
+  .page-subheading { color:var(--muted); font-size:.9rem; margin-bottom:32px; }
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .form-grid .full { grid-column:1/-1; }
+  .form-select { width:100%; background:rgba(255,255,255,.06); border:1.5px solid rgba(79,142,247,.2); color:var(--white); font-family:'DM Sans',sans-serif; font-size:.95rem; padding:12px 16px; border-radius:12px; outline:none; transition:border-color .2s; appearance:none; cursor:pointer; }
+  .form-select:focus { border-color:var(--sky); }
+  .form-select option { background:var(--navy); }
+  .tag-input-wrap { display:flex; flex-wrap:wrap; gap:8px; background:rgba(255,255,255,.06); border:1.5px solid rgba(79,142,247,.2); border-radius:12px; padding:10px 14px; min-height:48px; cursor:text; }
+  .tag-input-wrap input { background:transparent; border:none; outline:none; color:var(--white); font-size:.9rem; flex:1; min-width:100px; font-family:'DM Sans',sans-serif; }
+  .tag { display:inline-flex; align-items:center; gap:6px; background:rgba(26,71,200,.4); border:1px solid rgba(79,142,247,.3); color:var(--sky); font-size:.8rem; padding:3px 10px; border-radius:20px; }
+  .tag-remove { cursor:pointer; opacity:.7; font-size:.9rem; }
+  .tag-remove:hover { opacity:1; }
+  .profile-save-row { margin-top:28px; display:flex; justify-content:flex-end; }
+
+  /* DASHBOARD */
+  #pg-dashboard .dash-content { flex:1; padding:36px 40px; }
+  .dash-welcome { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:700; margin-bottom:6px; }
+  .dash-sub { color:var(--muted); margin-bottom:40px; font-size:.95rem; }
+  .dash-cards { display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:800px; margin:0 auto; }
+  .dash-card { background:var(--card); border:1px solid rgba(79,142,247,.15); border-radius:20px; padding:36px 32px; cursor:pointer; transition:all .25s; position:relative; overflow:hidden; }
+  .dash-card::before { content:''; position:absolute; inset:0; opacity:0; transition:opacity .25s; }
+  .dash-card:hover { transform:translateY(-4px); border-color:rgba(79,142,247,.4); box-shadow:0 16px 48px rgba(0,0,0,.35); }
+  .dash-card:hover::before { opacity:1; }
+  .card-icon { width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; font-size:1.7rem; }
+  .card-icon.teal { background:rgba(0,229,195,.12); }
+  .card-icon.blue { background:rgba(26,71,200,.2); }
+  .card-title { font-family:'Syne',sans-serif; font-size:1.15rem; font-weight:700; margin-bottom:10px; }
+  .card-desc { color:var(--muted); font-size:.88rem; line-height:1.6; }
+  .req-section { margin-top:40px; padding:28px 32px; background:var(--card); border:1px solid rgba(79,142,247,.12); border-radius:20px; max-width:800px; margin-left:auto; margin-right:auto; }
+  .req-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; margin-bottom:16px; color:var(--sky); }
+  .req-chips { display:flex; flex-wrap:wrap; gap:10px; }
+  .req-chip { background:rgba(79,142,247,.1); border:1px solid rgba(79,142,247,.25); color:var(--sky); font-size:.82rem; padding:6px 16px; border-radius:50px; }
+
+  /* INTERVIEW */
+  #pg-interview .interview-content { flex:1; padding:36px 40px; max-width:820px; margin:0 auto; width:100%; }
+  .welcome-banner { background:linear-gradient(135deg,rgba(26,71,200,.3),rgba(0,229,195,.15)); border:1px solid rgba(0,229,195,.25); border-radius:20px; padding:32px; text-align:center; margin-bottom:32px; }
+  .welcome-name { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; }
+  .welcome-name span { background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .interview-q-box { background:var(--card); border:1px solid rgba(79,142,247,.2); border-radius:16px; padding:28px; margin-bottom:20px; }
+  .q-label { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); margin-bottom:10px; }
+  .q-text { font-size:1.05rem; line-height:1.6; }
+  .answer-area { width:100%; background:rgba(255,255,255,.05); border:1.5px solid rgba(79,142,247,.2); color:var(--white); font-family:'DM Sans',sans-serif; font-size:.95rem; padding:14px 18px; border-radius:14px; outline:none; resize:vertical; min-height:110px; transition:border-color .2s; }
+  .answer-area:focus { border-color:var(--sky); }
+  .analysis-box { background:var(--card); border:1px solid rgba(0,229,195,.2); border-radius:20px; padding:32px; margin-top:24px; display:none; }
+  .analysis-title { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:700; margin-bottom:24px; color:var(--accent); }
+  .metrics-row { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:24px; }
+  .metric-card { flex:1; min-width:140px; background:rgba(255,255,255,.04); border-radius:14px; padding:20px; text-align:center; border:1px solid rgba(255,255,255,.07); }
+  .metric-val { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; }
+  .metric-label { font-size:.78rem; color:var(--muted); margin-top:4px; }
+  .metric-bar { height:6px; border-radius:99px; background:rgba(255,255,255,.08); margin-top:12px; overflow:hidden; }
+  .metric-fill { height:100%; border-radius:99px; transition:width 1s ease; }
+  .suggestions-list { list-style:none; }
+  .suggestions-list li { display:flex; align-items:flex-start; gap:12px; padding:14px 0; border-bottom:1px solid rgba(255,255,255,.06); font-size:.88rem; line-height:1.65; }
+  .suggestions-list li:last-child { border-bottom:none; }
+  .suggest-icon { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
+
+  /* TRACKER */
+  #pg-tracker .tracker-content { flex:1; padding:36px 40px; max-width:860px; margin:0 auto; width:100%; }
+  .upload-zone { border:2px dashed rgba(79,142,247,.35); border-radius:18px; padding:40px; text-align:center; cursor:pointer; transition:all .25s; background:rgba(79,142,247,.04); margin-bottom:24px; }
+  .upload-zone:hover { border-color:var(--accent); background:rgba(0,229,195,.05); }
+  .upload-icon { font-size:2.5rem; margin-bottom:12px; }
+  .upload-label { font-size:.95rem; color:var(--muted); }
+  .upload-label strong { color:var(--accent); }
+  .job-list { display:flex; flex-direction:column; gap:16px; margin-bottom:28px; }
+  .job-card { background:var(--card); border:1px solid rgba(79,142,247,.15); border-radius:16px; padding:22px 26px; display:flex; align-items:center; gap:20px; cursor:pointer; transition:all .2s; }
+  .job-card:hover { border-color:var(--sky); }
+  .job-card.selected { border-color:var(--accent); background:rgba(0,229,195,.06); }
+  .job-logo { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; background:rgba(255,255,255,.07); flex-shrink:0; }
+  .job-info { flex:1; }
+  .job-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; }
+  .job-company { color:var(--muted); font-size:.85rem; margin-top:3px; }
+  .job-tags { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+  .job-tag { font-size:.72rem; padding:3px 10px; border-radius:50px; background:rgba(79,142,247,.1); color:var(--sky); border:1px solid rgba(79,142,247,.2); }
+  .job-match { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:800; color:var(--accent); }
+  .skills-gap { background:var(--card); border:1px solid rgba(255,79,109,.2); border-radius:16px; padding:24px; margin-bottom:24px; display:none; }
+  .resources-box { background:var(--card); border:1px solid rgba(0,201,122,.2); border-radius:16px; padding:24px; margin-bottom:28px; display:none; }
+  .resource-card { display:flex; align-items:center; gap:16px; padding:14px; background:rgba(255,255,255,.04); border-radius:12px; margin-bottom:12px; border:1px solid rgba(255,255,255,.06); }
+  .resource-thumb { width:52px; height:52px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; background:rgba(255,0,0,.15); flex-shrink:0; }
+  .resource-info .r-title { font-weight:600; font-size:.92rem; }
+  .resource-info .r-channel { color:var(--muted); font-size:.8rem; margin-top:3px; }
+  .resource-info .r-lang { font-size:.75rem; color:var(--accent); margin-top:4px; }
+  .blast-box { display:none; text-align:center; padding:48px 32px; background:linear-gradient(135deg,rgba(26,71,200,.25),rgba(0,229,195,.15)); border:1px solid rgba(0,229,195,.3); border-radius:24px; position:relative; overflow:hidden; }
+  .blast-emoji { font-size:3rem; margin-bottom:16px; animation:pop .6s ease both; }
+  .blast-quote { font-family:'Syne',sans-serif; font-size:1.35rem; font-weight:700; margin-bottom:10px; }
+  .blast-sub { color:var(--muted); font-size:.92rem; }
+  .confetti { position:absolute; width:8px; height:8px; border-radius:2px; animation:confettiFall 2s ease-in both; }
+  @keyframes pop { 0%{transform:scale(0)} 70%{transform:scale(1.2)} 100%{transform:scale(1)} }
+  @keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(200px) rotate(360deg);opacity:0} }
+
+  /* MODALS */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(6px); z-index:200; align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal-box { background:var(--card); border:1px solid rgba(79,142,247,.2); border-radius:24px; padding:40px; width:100%; max-width:420px; margin:20px; animation:fadeIn .3s ease; }
+  .modal-title { font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:700; margin-bottom:6px; }
+  .modal-sub { color:var(--muted); font-size:.88rem; margin-bottom:24px; }
+
+  /* FORGET PASSWORD */
+  .toast { position:fixed; bottom:28px; right:28px; background:var(--success); color:#fff; font-weight:600; font-size:.9rem; padding:14px 24px; border-radius:12px; z-index:300; animation:toastIn .3s ease; }
+  @keyframes toastIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+
+  /* MISC */
+  .back-btn { display:inline-flex; align-items:center; gap:8px; color:var(--muted); font-size:.88rem; cursor:pointer; margin-bottom:24px; transition:color .2s; background:none; border:none; }
+  .back-btn:hover { color:var(--white); }
+  .section-sep { height:1px; background:rgba(255,255,255,.07); margin:28px 0; }
+  .loading-dots { display:inline-flex; gap:5px; }
+  .loading-dots span { width:7px; height:7px; border-radius:50%; background:var(--accent); animation:dot .9s infinite alternate; }
+  .loading-dots span:nth-child(2){animation-delay:.2s}
+  .loading-dots span:nth-child(3){animation-delay:.4s}
+  @keyframes dot{from{opacity:.3;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+  .ai-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(0,229,195,.1); border:1px solid rgba(0,229,195,.25); color:var(--accent); font-size:.75rem; font-weight:700; padding:4px 12px; border-radius:50px; letter-spacing:.04em; text-transform:uppercase; }
+  select option { color: #111; }
+  .section-label { font-family:'Syne',sans-serif; font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:12px; margin-top:24px; }
+  /* CAMERA */
+  .camera-bar { display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,.04); border:1px solid rgba(79,142,247,.15); border-radius:14px; padding:12px 18px; margin-bottom:20px; }
+  .cam-left { display:flex; align-items:center; gap:12px; font-size:.9rem; }
+  .cam-toggle { position:relative; width:46px; height:26px; cursor:pointer; }
+  .cam-toggle input { opacity:0; width:0; height:0; }
+  .cam-slider { position:absolute; inset:0; background:rgba(255,255,255,.15); border-radius:99px; transition:.3s; }
+  .cam-slider::before { content:''; position:absolute; width:20px; height:20px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.3s; }
+  .cam-toggle input:checked + .cam-slider { background:var(--accent); }
+  .cam-toggle input:checked + .cam-slider::before { transform:translateX(20px); }
+  .cam-status { font-size:.75rem; color:var(--muted); }
+  .cam-status.on { color:var(--accent); }
+  #camera-preview { width:100%; max-width:360px; height:200px; border-radius:16px; object-fit:cover; background:#000; border:2px solid rgba(0,229,195,.3); display:none; margin:0 auto 20px; }
+
+  /* NOTIFICATION */
+  .notif-btn { position:relative; background:none; border:none; cursor:pointer; padding:8px; border-radius:10px; transition:background .2s; }
+  .notif-btn:hover { background:rgba(79,142,247,.1); }
+  .notif-dot { position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:var(--danger); border:2px solid var(--navy); }
+  .notif-panel { position:fixed; top:0; right:0; width:380px; height:100vh; background:var(--card); border-left:1px solid rgba(79,142,247,.2); z-index:500; transform:translateX(100%); transition:transform .3s ease; display:flex; flex-direction:column; overflow-y:auto; }
+  .notif-panel.open { transform:translateX(0); }
+  .notif-header { display:flex; align-items:center; justify-content:space-between; padding:22px 20px 18px; border-bottom:1px solid rgba(255,255,255,.07); }
+  .notif-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; }
+  .notif-close { background:none; border:none; color:var(--muted); font-size:1.3rem; cursor:pointer; padding:4px 8px; border-radius:8px; transition:all .2s; }
+  .notif-close:hover { color:var(--white); background:rgba(255,255,255,.07); }
+  .notif-list { padding:12px; }
+  .notif-item { padding:14px; border-radius:12px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); margin-bottom:10px; transition:background .2s; cursor:pointer; }
+  .notif-item:hover { background:rgba(79,142,247,.08); border-color:rgba(79,142,247,.2); }
+  .notif-item-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .notif-company { font-family:'Syne',sans-serif; font-size:.88rem; font-weight:700; }
+  .notif-badge-new { font-size:.65rem; background:rgba(0,229,195,.15); color:var(--accent); border:1px solid rgba(0,229,195,.3); padding:2px 8px; border-radius:50px; font-weight:700; text-transform:uppercase; }
+  .notif-role { font-size:.85rem; color:var(--white); margin-bottom:4px; }
+  .notif-meta { font-size:.75rem; color:var(--muted); }
+  .notif-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:499; display:none; }
+  .notif-overlay.open { display:block; }
+
+  /* VOICE DETECTION */
+  .voice-bar { display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,.04); border:1px solid rgba(79,142,247,.15); border-radius:14px; padding:12px 18px; margin-bottom:12px; }
+  .voice-visualizer { display:flex; align-items:flex-end; gap:3px; height:28px; }
+  .voice-bar-seg { width:4px; background:var(--accent); border-radius:2px; transition:height .1s; }
+  .voice-btn { display:inline-flex; align-items:center; gap:8px; padding:8px 18px; border-radius:50px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:.85rem; font-weight:600; transition:all .2s; }
+  .voice-btn.idle { background:rgba(0,229,195,.1); color:var(--accent); border:1.5px solid rgba(0,229,195,.3); }
+  .voice-btn.recording { background:rgba(255,79,109,.15); color:var(--danger); border:1.5px solid rgba(255,79,109,.4); animation:pulse .8s infinite alternate; }
+  @keyframes pulse { from{box-shadow:0 0 0 0 rgba(255,79,109,.3)} to{box-shadow:0 0 0 8px rgba(255,79,109,0)} }
+  .voice-transcript { font-size:.8rem; color:var(--muted); margin-top:4px; font-style:italic; min-height:18px; }
+
+  /* CHALLENGES */
+  .challenge-box { background:var(--card); border:1px solid rgba(245,200,66,.25); border-radius:20px; padding:28px; margin-bottom:28px; display:none; }
+  .challenge-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+  .challenge-title { font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:700; color:var(--gold); }
+  .challenge-streak { display:flex; align-items:center; gap:8px; background:rgba(245,200,66,.1); border:1px solid rgba(245,200,66,.25); padding:6px 14px; border-radius:50px; font-size:.8rem; color:var(--gold); font-weight:700; }
+  .challenge-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:14px; padding:18px; margin-bottom:12px; }
+  .ch-num { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:6px; }
+  .ch-q { font-size:.92rem; line-height:1.55; margin-bottom:10px; }
+  .ch-tags { display:flex; gap:8px; flex-wrap:wrap; }
+  .ch-tag { font-size:.72rem; padding:3px 10px; border-radius:50px; background:rgba(245,200,66,.1); color:var(--gold); border:1px solid rgba(245,200,66,.2); }
+
+  /* STARTUP IDEAS */
+  .startup-box { background:var(--card); border:1px solid rgba(79,142,247,.2); border-radius:20px; padding:28px; margin-bottom:28px; display:none; }
+  .startup-title { font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:700; color:var(--sky); margin-bottom:6px; }
+  .startup-sub { color:var(--muted); font-size:.85rem; margin-bottom:20px; }
+  .startup-idea-card { background:rgba(255,255,255,.03); border:1px solid rgba(79,142,247,.12); border-radius:14px; padding:18px; margin-bottom:14px; }
+  .startup-idea-head { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+  .startup-idea-icon { font-size:1.5rem; }
+  .startup-idea-name { font-family:'Syne',sans-serif; font-weight:700; font-size:.95rem; }
+  .startup-idea-badge { font-size:.65rem; background:rgba(0,229,195,.1); color:var(--accent); border:1px solid rgba(0,229,195,.25); padding:2px 8px; border-radius:50px; font-weight:700; text-transform:uppercase; }
+  .startup-idea-desc { font-size:.85rem; color:var(--muted); line-height:1.55; }
+  .startup-share-area { background:rgba(255,255,255,.04); border:1.5px solid rgba(79,142,247,.2); border-radius:14px; padding:16px; margin-top:20px; }
+  .startup-share-title { font-size:.85rem; font-weight:700; color:var(--accent); margin-bottom:10px; }
+  .startup-share-input { width:100%; background:rgba(255,255,255,.06); border:1.5px solid rgba(79,142,247,.2); color:var(--white); font-family:'DM Sans',sans-serif; font-size:.9rem; padding:10px 14px; border-radius:10px; outline:none; margin-bottom:8px; transition:border-color .2s; }
+  .startup-share-input:focus { border-color:var(--sky); }
+  .startup-share-ta { width:100%; background:rgba(255,255,255,.06); border:1.5px solid rgba(79,142,247,.2); color:var(--white); font-family:'DM Sans',sans-serif; font-size:.9rem; padding:10px 14px; border-radius:10px; outline:none; resize:vertical; min-height:80px; margin-bottom:10px; transition:border-color .2s; }
+  .startup-share-ta:focus { border-color:var(--sky); }
+  .startup-collab-msg { display:none; background:rgba(0,229,195,.08); border:1px solid rgba(0,229,195,.3); border-radius:12px; padding:14px 18px; margin-top:12px; font-size:.88rem; color:var(--accent); }
+
+  /* COMPETITIVE ANALYSIS */
+  .compare-box { background:var(--card); border:1px solid rgba(0,229,195,.2); border-radius:20px; padding:32px; margin-bottom:28px; display:none; }
+  .compare-title { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; color:var(--accent); margin-bottom:6px; }
+  .compare-sub { color:var(--muted); font-size:.85rem; margin-bottom:22px; }
+  .compare-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+  .compare-table th { font-family:'Syne',sans-serif; font-weight:700; font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); padding:10px 14px; text-align:left; border-bottom:1px solid rgba(255,255,255,.07); }
+  .compare-table td { padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.05); vertical-align:middle; }
+  .compare-table tr:last-child td { border-bottom:none; }
+  .compare-table .placient-col { color:var(--accent); font-weight:600; }
+  .compare-table .highlight-row { background:rgba(0,229,195,.04); }
+  .compare-check { color:var(--success); font-size:1rem; }
+  .compare-cross { color:var(--danger); font-size:1rem; }
+  .compare-partial { color:var(--gold); font-size:1rem; }
+
+  @media(max-width:640px){
+    .form-grid{grid-template-columns:1fr}
+    .dash-cards{grid-template-columns:1fr}
+    .topbar{padding:14px 18px}
+    .profile-main,.dash-content,.interview-content,.tracker-content{padding:24px 18px}
+    .profile-sidebar{width:200px}
+    .metrics-row{flex-direction:column}
+  }
+  @media(max-width:480px){
+    .profile-shell{flex-direction:column}
+    .profile-sidebar{width:100%;flex-direction:row;overflow-x:auto;padding:12px;border-right:none;border-bottom:1px solid rgba(79,142,247,.12)}
+    .sidebar-sep{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== PAGE 1: LANDING ========== -->
+<div id="pg-landing" class="page active">
+  <div class="landing-bg">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+  </div>
+  <nav class="topbar">
+    <div class="logo">Placient<span> AI</span></div>
+  </nav>
+  <div class="landing-content">
+    <div class="landing-badge">🎓 AI-Powered Placement Platform</div>
+    <h1 class="landing-title">
+      Your Career Starts<br>With <em>Placient AI</em>
+    </h1>
+    <p class="landing-sub">Advanced AI interview analysis, personalised skill coaching, and smart job matching — built for students ready to crack their dream placement.</p>
+    <button class="btn-primary" onclick="showPage('pg-auth')">
+      Get Started
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+    <div class="landing-stats">
+      <div class="stat"><div class="stat-val">AI</div><div class="stat-label">Interview Analyser</div></div>
+      <div class="stat"><div class="stat-val">Smart</div><div class="stat-label">Job Matching</div></div>
+      <div class="stat"><div class="stat-val">Live</div><div class="stat-label">Skill Tracker</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 2: AUTH ========== -->
+<div id="pg-auth" class="page">
+  <nav class="topbar">
+    <div class="logo">Placient<span> AI</span></div>
+  </nav>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+    <div class="auth-box">
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:6px;">Welcome to</p>
+      <h2 class="auth-title">Placient AI</h2>
+      <p class="auth-sub">Sign in to your account or create a new one</p>
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Login</div>
+        <div class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</div>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="login-form">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" id="login-email" type="email" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" id="login-pass" type="password" placeholder="••••••••">
+          <div class="form-error" id="login-error">Incorrect email or password.</div>
+          <div class="form-hint" onclick="openForgot()">Forgot password?</div>
+        </div>
+        <button class="btn-full btn-blue" onclick="doLogin()">Login</button>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div id="signup-form" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" id="su-name" type="text" placeholder="Your full name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" id="su-email" type="email" placeholder="you@gmail.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile Number</label>
+          <input class="form-input" id="su-phone" type="tel" placeholder="+91 98765 43210">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" id="su-pass" type="password" placeholder="Create password">
+          <div class="form-error" id="su-error">Please fill all fields.</div>
+        </div>
+        <button class="btn-full btn-blue" onclick="doSignup()">Create Account</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div class="modal-overlay" id="forgot-modal">
+  <div class="modal-box">
+    <h3 class="modal-title">Reset Password</h3>
+    <p class="modal-sub">Enter your email and we'll send you a reset link.</p>
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input class="form-input" id="forgot-email" type="email" placeholder="you@example.com">
+    </div>
+    <button class="btn-full btn-blue" style="margin-bottom:12px" onclick="sendReset()">Send Reset Link</button>
+    <button class="btn-full btn-secondary" style="border:1.5px solid rgba(255,255,255,.1);color:var(--muted);background:transparent;padding:12px;border-radius:12px;cursor:pointer;font-size:.9rem;" onclick="closeForgot()">Cancel</button>
+  </div>
+</div>
+
+<!-- ========== PAGE 3: PROFILE SETUP ========== -->
+<div id="pg-profile" class="page">
+  <nav class="topbar">
+    <div class="logo">Placient<span> AI</span></div>
+    <div class="ai-badge">🎓 Student Profile</div>
+  </nav>
+  <div class="profile-shell" style="flex:1;">
+    <aside class="profile-sidebar">
+      <div class="sidebar-item active" onclick="profileNav(this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        My Profile
+      </div>
+      <div class="sidebar-item" onclick="profileNav(this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit Profile (Settings)
+      </div>
+      <div class="sidebar-sep"></div>
+      <div class="sidebar-item" onclick="openNotif()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+        <span style="margin-left:auto;background:var(--danger);color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:50px;">5</span>
+      </div>
+      <div class="sidebar-item" onclick="showPage('pg-tracker');setTimeout(()=>{document.getElementById('startup-box').scrollIntoView({behavior:'smooth'})},400)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        Startup Ideas
+      </div>
+      <div class="sidebar-sep"></div>
+      <div class="sidebar-item sidebar-danger" onclick="doLogout()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </div>
+    </aside>
+    <main class="profile-main">
+      <h2 class="page-heading">Complete Your Profile</h2>
+      <p class="page-subheading">Help us personalise your placement journey — fill in your details below.</p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" id="p-name" placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input class="form-input" id="p-phone" placeholder="+91 98765 43210">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gmail Address</label>
+          <input class="form-input" id="p-email" placeholder="you@gmail.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Graduation Year</label>
+          <select class="form-select" id="p-grad">
+            <option value="">Select Year</option>
+            <option>2026</option><option>2027</option><option>2028</option><option>2029</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">College Name</label>
+          <input class="form-input" id="p-college" placeholder="e.g. VIT Vellore, BITS Pilani">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Department</label>
+          <select class="form-select" id="p-dept">
+            <option value="">Select Department</option>
+            <option>Computer Science & Engineering</option>
+            <option>Electronics & Communication</option>
+            <option>Mechanical Engineering</option>
+            <option>Information Technology</option>
+            <option>Civil Engineering</option>
+            <option>Data Science</option>
+            <option>Electrical Engineering</option>
+            <option>Biotechnology</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Skills Known <span style="color:var(--muted);font-weight:400;text-transform:none;font-size:.8rem;">(type & press Enter)</span></label>
+          <div class="tag-input-wrap" id="skills-wrap" onclick="this.querySelector('input').focus()">
+            <input id="skills-input" placeholder="e.g. Python, React..." onkeydown="addTag(event,'skills-wrap','skills-list')">
+          </div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Certifications <span style="color:var(--muted);font-weight:400;text-transform:none;font-size:.8rem;">(type & press Enter)</span></label>
+          <div class="tag-input-wrap" id="cert-wrap" onclick="this.querySelector('input').focus()">
+            <input id="cert-input" placeholder="e.g. AWS Cloud Practitioner..." onkeydown="addTag(event,'cert-wrap','cert-list')">
+          </div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Internships <span style="color:var(--muted);font-weight:400;text-transform:none;font-size:.8rem;">(type & press Enter)</span></label>
+          <div class="tag-input-wrap" id="intern-wrap" onclick="this.querySelector('input').focus()">
+            <input id="intern-input" placeholder="e.g. Google SWE Intern 2024..." onkeydown="addTag(event,'intern-wrap','intern-list')">
+          </div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Hackathons Participated <span style="color:var(--muted);font-weight:400;text-transform:none;font-size:.8rem;">(type & press Enter)</span></label>
+          <div class="tag-input-wrap" id="hack-wrap" onclick="this.querySelector('input').focus()">
+            <input id="hack-input" placeholder="e.g. Smart India Hackathon 2024..." onkeydown="addTag(event,'hack-wrap','hack-list')">
+          </div>
+        </div>
+      </div>
+      <div class="profile-save-row">
+        <button class="btn-primary" onclick="saveProfile()">Save & Continue →</button>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ========== PAGE 4: DASHBOARD ========== -->
+<div id="pg-dashboard" class="page">
+  <nav class="topbar">
+    <div class="logo">Placient<span> AI</span></div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div class="ai-badge">✨ AI Powered</div>
+      <button class="notif-btn" onclick="openNotif()" title="Notifications">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+      <button class="btn-secondary" style="padding:8px 20px;font-size:.85rem;" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+  <div class="dash-content" style="flex:1;">
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:4px;">Welcome back 👋</p>
+    <h2 class="dash-welcome" id="dash-name">Hello, Student!</h2>
+    <p class="dash-sub">Your AI-powered career tools are ready. Choose where to begin.</p>
+    
+    <div class="req-section" style="margin-bottom:36px;margin-top:0;">
+      <div class="req-title">📋 Basic Requirements to Crack a Job in 2025</div>
+      <div class="req-chips">
+        <span class="req-chip">Strong DSA</span>
+        <span class="req-chip">System Design</span>
+        <span class="req-chip">Communication Skills</span>
+        <span class="req-chip">Relevant Projects</span>
+        <span class="req-chip">Problem Solving</span>
+        <span class="req-chip">Git & Version Control</span>
+        <span class="req-chip">DBMS Fundamentals</span>
+        <span class="req-chip">OS Concepts</span>
+      </div>
+    </div>
+
+    <div class="dash-cards">
+      <div class="dash-card" onclick="showPage('pg-interview')">
+        <div class="card-icon teal">🤖</div>
+        <div class="card-title">AI Interview Analyser</div>
+        <div class="card-desc">Take a personalised mock interview based on your department. Get real-time AI analysis of stress, confidence, and hesitation.</div>
+      </div>
+      <div class="dash-card" onclick="showPage('pg-tracker')">
+        <div class="card-icon blue">📊</div>
+        <div class="card-title">AI Placement Tracker</div>
+        <div class="card-desc">Upload your resume, browse job matches, identify skill gaps, and get curated YouTube learning resources.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 5: INTERVIEW ========== -->
+<div id="pg-interview" class="page">
+  <nav class="topbar">
+    <div class="logo">Placient<span> AI</span></div>
+    <div class="ai-badge">🤖 AI Interview Analyser</div>
+  </nav>
+  <div class="interview-content">
+    <button class="back-btn" onclick="showPage('pg-dashboard')">← Back to Dashboard</button>
+    <div class="welcome-banner">
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:6px;">Welcome,</p>
+      <div class="welcome-name">Hey, <span id="interview-name">Student</span>! 👋</div>
+      <p style="color:var(--muted);margin-top:10px;font-size:.9rem;">Ready for your AI-powered mock interview?</p>
+    </div>
+
+    <div id="demo-start-box" style="text-align:center;padding:24px 0;">
+      <p style="color:var(--muted);margin-bottom:24px;font-size:.95rem;">We'll ask you <strong style="color:var(--white)">3 questions</strong> tailored to your department. Answer honestly — our AI will analyse your response patterns.</p>
+      
+      <div class="camera-bar" style="max-width:480px;margin:0 auto 12px;">
+        <div class="cam-left">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          <span>Camera</span>
+          <span class="cam-status" id="cam-status-label">Off</span>
+        </div>
+        <label class="cam-toggle">
+          <input type="checkbox" id="cam-toggle-input" onchange="toggleCamera(this)">
+          <span class="cam-slider"></span>
+        </label>
+      </div>
+      <!-- VOICE DETECTION BAR -->
+      <div class="voice-bar" style="max-width:480px;margin:0 auto 20px;flex-wrap:wrap;gap:10px;">
+        <div class="cam-left" style="flex:1;min-width:160px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span style="font-size:.88rem;">Voice</span>
+          <span class="cam-status" id="voice-status-label">Off</span>
+        </div>
+        <div class="voice-visualizer" id="voice-viz" style="opacity:.3;">
+          <div class="voice-bar-seg" style="height:6px" id="vb0"></div>
+          <div class="voice-bar-seg" style="height:10px" id="vb1"></div>
+          <div class="voice-bar-seg" style="height:4px" id="vb2"></div>
+          <div class="voice-bar-seg" style="height:14px" id="vb3"></div>
+          <div class="voice-bar-seg" style="height:8px" id="vb4"></div>
+          <div class="voice-bar-seg" style="height:12px" id="vb5"></div>
+        </div>
+        <button class="voice-btn idle" id="voice-btn" onclick="toggleVoice()">🎙️ Start Voice</button>
+      </div>
+      <div id="voice-transcript-area" style="max-width:480px;margin:0 auto 8px;padding:0 4px;">
+        <div class="voice-transcript" id="voice-transcript">Voice transcript will appear here while you speak...</div>
+      </div>
+      <video id="camera-preview" autoplay muted playsinline></video>
+      <br>
+      <button class="btn-primary" onclick="startDemo()">Start Demo Interview 🚀</button>
+    </div>
+
+    <div id="interview-section" style="display:none;">
+      <div id="q-container"></div>
+      <button class="btn-primary" id="submit-btn" onclick="submitAnswers()" style="display:none;margin-top:8px;">Submit & Analyse 🧠</button>
+    </div>
+
+    <div class="analysis-box" id="analysis-box">
+      <div class="analysis-title">📊 Your AI Performance Analysis</div>
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-val" id="m-confidence" style="color:var(--success)">--</div>
+          <div class="metric-label">Confidence</div>
+          <div class="metric-bar"><div class="metric-fill" id="mf-confidence" style="background:var(--success);width:0%"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="m-stress" style="color:var(--danger)">--</div>
+          <div class="metric-label">Stress Level</div>
+          <div class="metric-bar"><div class="metric-fill" id="mf-stress" style="background:var(--danger);width:0%"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="m-hesitation" style="color:var(--gold)">--</div>
+          <div class="metric-label">Hesitation Words</div>
+          <div class="metric-bar"><div class="metric-fill" id="mf-hesitation" style="background:var(--gold);width:0%"></div></div>
+        </div>
+      </div>
+      <div class="section-sep"></div>
+      <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--sky);margin-bottom:14px;">💡 Areas to Improve</div>
+      <ul class="suggestions-list" id="suggestions-list"></ul>
+      <div style="margin-top:24px;text-align:center;">
+        <button class="btn-primary" onclick="showPage('pg-dashboard')">OK — Back to Dashboard</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 6: PLACEMENT TRACKER ========== -->
+<div id="pg-tracker" class="page">
+  <nav class="topbar">
+    <div class="logo">Placient<span> AI</span></div>
+    <div class="ai-badge">📊 Placement Tracker</div>
+  </nav>
+  <div class="tracker-content">
+    <button class="back-btn" onclick="showPage('pg-dashboard')">← Back to Dashboard</button>
+    <div class="welcome-banner" style="margin-bottom:28px;">
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:6px;">Welcome,</p>
+      <div class="welcome-name"><span id="tracker-name">Student</span> — Let's find your perfect job! 🎯</div>
+    </div>
+
+    <div id="upload-section">
+      <div class="section-label">Step 1 — Upload Your Documents</div>
+      <div class="upload-zone" onclick="triggerUpload('resume-file')">
+        <div class="upload-icon">📄</div>
+        <div class="upload-label"><strong>Click to upload Resume</strong> (PDF/DOCX)</div>
+        <input type="file" id="resume-file" style="display:none" accept=".pdf,.doc,.docx" onchange="onFileUpload(this,'resume-lbl')">
+        <div id="resume-lbl" style="color:var(--accent);margin-top:8px;font-size:.85rem;"></div>
+      </div>
+      <div class="upload-zone" onclick="triggerUpload('cert-file')">
+        <div class="upload-icon">🏆</div>
+        <div class="upload-label"><strong>Click to upload Certifications & Internship docs</strong></div>
+        <input type="file" id="cert-file" style="display:none" accept=".pdf,.jpg,.png" onchange="onFileUpload(this,'cert-lbl')" multiple>
+        <div id="cert-lbl" style="color:var(--accent);margin-top:8px;font-size:.85rem;"></div>
+      </div>
+      <div style="text-align:center;margin-top:8px;">
+        <button class="btn-primary" onclick="loadJobs()">Find Matching Jobs 🔍</button>
+      </div>
+    </div>
+
+    <div id="jobs-section" style="display:none;margin-top:28px;">
+      <div class="section-label">Step 2 — Select a Job</div>
+      <div class="job-list" id="job-list"></div>
+    </div>
+
+    <div class="skills-gap" id="skills-gap">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--danger);margin-bottom:14px;">⚠️ Skills Gap Analysis</div>
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:14px;">Based on your profile vs. job requirements:</p>
+      <div id="gap-list"></div>
+    </div>
+
+    <div class="resources-box" id="resources-box">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--success);margin-bottom:6px;">📚 Top YouTube Learning Resources</div>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:18px;">Curated based on teaching quality, content depth, and full courses.</p>
+      <div id="resource-list"></div>
+    </div>
+
+    <!-- DAILY CHALLENGES -->
+    <div class="challenge-box" id="challenge-box">
+      <div class="challenge-header">
+        <div class="challenge-title">🔥 Daily Skill Challenges — 2 Questions Today</div>
+        <div class="challenge-streak">🏆 3-Day Streak</div>
+      </div>
+      <div id="daily-challenges"></div>
+      <div style="margin-top:16px;text-align:center;">
+        <button class="btn-primary" style="font-size:.88rem;padding:12px 28px;" onclick="showToast('✅ Challenges submitted! Check back tomorrow for new ones.')">Submit Today\'s Challenges</button>
+      </div>
+    </div>
+
+    <!-- COMPETITIVE ANALYSIS -->
+    <div class="compare-box" id="compare-box">
+      <div class="compare-title">⚔️ Why Placient AI vs. Other Platforms?</div>
+      <div class="compare-sub">Here's how we stack up against LinkedIn, HackerRank, and Resume Analysers:</div>
+      <div style="overflow-x:auto;">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th class="placient-col" style="color:var(--accent);">Placient AI ✨</th>
+              <th>LinkedIn</th>
+              <th>HackerRank</th>
+              <th>Resume Analysers</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlight-row">
+              <td>AI Mock Interview</td>
+              <td class="placient-col"><span class="compare-check">✅</span> Dept-personalised</td>
+              <td><span class="compare-cross">❌</span></td>
+              <td><span class="compare-partial">⚡</span> Generic</td>
+              <td><span class="compare-cross">❌</span></td>
+            </tr>
+            <tr>
+              <td>Stress & Confidence Analysis</td>
+              <td class="placient-col"><span class="compare-check">✅</span> Real-time %</td>
+              <td><span class="compare-cross">❌</span></td>
+              <td><span class="compare-cross">❌</span></td>
+              <td><span class="compare-cross">❌</span></td>
+            </tr>
+            <tr class="highlight-row">
+              <td>Voice + Camera Interview</td>
+              <td class="placient-col"><span class="compare-check">✅</span> Built-in</td>
+              <td><span class="compare-cross">❌</span></td>
+              <td><span class="compare-cross">❌</span></td>
+              <td><span class="compare-cross">❌</span></td>
+            </tr>
+            <tr>
+              <td>Job Match + Skill Gap</td>
+              <td class="placient-col"><span class="compare-check">✅</span> AI-matched</td>
+              <td><span class="compare-partial">⚡</span> Manual apply</td>
+              <td><span class="compare-cross">❌</span></td>
+              <td><span class="compare-partial">⚡</span> Partial</td>
+            </tr>
+            <tr class="highlight-row">
+              <td>YouTube Learning Path</td>
+              <td class="placient-col"><span class="compare-check">✅</span> Curated per job</td>
+              <td><span class="compare-cross">❌</span></td>
+              <td><span class="compare-cross">❌</span></td>
+              <td><span class="compare-cross">❌</span></td>
+            </tr>
+            <tr>
+              <td>Daily Skill Challenges</td>
+              <td class="placient-col"><span class="compare-check">✅</span> 2/day streaks</td>
+              <td><span class="compare-cross">❌</span></td>
+              <td><span class="compare-check">✅</span> Coding only</td>
+              <td><span class="compare-cross">❌</span></td>
+            </tr>
+            <tr class="highlight-row">
+              <td>Startup Ecosystem Access</td>
+              <td class="placient-col"><span class="compare-check">✅</span> Pitch & collaborate</td>
+              <td><span class="compare-partial">⚡</span> Network only</td>
+              <td><span class="compare-cross">❌</span></td>
+              <td><span class="compare-cross">❌</span></td>
+            </tr>
+            <tr>
+              <td>Campus Student Focus</td>
+              <td class="placient-col"><span class="compare-check">✅</span> 100% student-first</td>
+              <td><span class="compare-partial">⚡</span> All professionals</td>
+              <td><span class="compare-partial">⚡</span> Developers only</td>
+              <td><span class="compare-cross">❌</span></td>
+            </tr>
+            <tr class="highlight-row">
+              <td>MNC Hiring Alerts</td>
+              <td class="placient-col"><span class="compare-check">✅</span> Real-time notifs</td>
+              <td><span class="compare-check">✅</span> General</td>
+              <td><span class="compare-cross">❌</span></td>
+              <td><span class="compare-cross">❌</span></td>
+            </tr>
+            <tr>
+              <td>Cost for Students</td>
+              <td class="placient-col" style="color:var(--success);">Free 🎓</td>
+              <td style="color:var(--muted);">Freemium</td>
+              <td style="color:var(--muted);">Freemium</td>
+              <td style="color:var(--muted);">Paid</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="blast-box" id="blast-box">
+      <div id="confetti-container"></div>
+      <div class="blast-emoji">🎉</div>
+      <div class="blast-quote">"Thank You for Trusting Placient AI!"</div>
+      <p class="blast-sub">We are rooting for your bright future. Go crack that placement! 🚀✨</p>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION OVERLAY -->
+<div class="notif-overlay" id="notif-overlay" onclick="closeNotif()"></div>
+
+<!-- NOTIFICATION PANEL -->
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-header">
+    <div class="notif-title">🔔 MNC Job Alerts</div>
+    <button class="notif-close" onclick="closeNotif()">✕</button>
+  </div>
+  <div class="notif-list">
+    <!-- Google -->
+    <div class="notif-item">
+      <div class="notif-item-head">
+        <span style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:#fff;border-radius:8px;flex-shrink:0;">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.2 30.2 0 24 0 14.6 0 6.6 5.4 2.6 13.3l7.9 6.1C12.4 13.1 17.7 9.5 24 9.5z"/><path fill="#34A853" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"/><path fill="#FBBC05" d="M10.5 28.6A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.7-4.6L2.3 13.3A24 24 0 0 0 0 24c0 3.8.9 7.4 2.4 10.6l8.1-6z"/><path fill="#4285F4" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.3 0-11.6-3.6-13.5-9.3l-8.1 6C6.5 42.6 14.6 48 24 48z"/></svg>
+        </span>
+        <span class="notif-company">Google</span>
+        <span class="notif-badge-new">New</span>
+      </div>
+      <div class="notif-role">Software Engineer – New Grad 2025</div>
+      <div class="notif-meta">📍 Bengaluru, India &nbsp;·&nbsp; 💰 ₹18–28 LPA &nbsp;·&nbsp; 2h ago</div>
+    </div>
+    <!-- Amazon -->
+    <div class="notif-item">
+      <div class="notif-item-head">
+        <span style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:#FF9900;border-radius:8px;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#fff" d="M13.2 20.4c0 1 .1 1.8.4 2.4.2.6.6 1.2 1 1.7.2.2.2.4.1.6l-.7.5c-.2.1-.4.1-.6-.1-.5-.5-1-1.2-1.3-1.9-.8 1.2-2 1.8-3.6 1.8-1 0-1.9-.3-2.5-1-.6-.6-.9-1.5-.9-2.6 0-1.1.4-2 1.2-2.7.8-.6 1.9-1 3.3-1h1.8v-.7c0-.7-.1-1.3-.5-1.6-.3-.4-.9-.5-1.6-.5-.9 0-1.9.2-2.8.6-.3.1-.5 0-.5-.3l-.3-1c-.1-.3 0-.5.3-.6 1-.5 2.2-.7 3.5-.7 1.3 0 2.2.3 2.8 1 .6.6.9 1.6.9 2.9v3.2zm-2.4 1.6c.5 0 1-.1 1.4-.4.4-.3.7-.7.8-1.2v-1.2h-1.5c-.8 0-1.4.1-1.8.4-.4.3-.6.7-.6 1.3 0 .5.1.9.4 1.1.3.2.7.4 1.3.4v-.4zM21.7 25c-.3 0-.5-.2-.6-.4l-3.3-10.4c0-.1-.1-.3-.1-.4 0-.3.1-.4.4-.4h1.4c.3 0 .5.2.6.4l2.3 7.9 2.2-7.9c.1-.3.3-.4.6-.4h1.1c.3 0 .5.2.6.4l2.2 8 2.3-8c.1-.3.3-.4.6-.4h1.3c.3 0 .4.2.4.4 0 .1 0 .2-.1.4L30.4 24.6c-.1.3-.3.4-.6.4h-1.2c-.3 0-.5-.2-.6-.4l-2.1-7.7-2.1 7.7c-.1.3-.3.4-.6.4h-1.5zm15.8.3c-.8 0-1.6-.1-2.4-.4-.8-.3-1.4-.6-1.7-1-.2-.2-.2-.4-.1-.6l.5-1c.1-.3.3-.3.6-.1.4.3.9.5 1.4.7.6.2 1.1.3 1.7.3.7 0 1.2-.1 1.6-.4.4-.3.5-.6.5-1.1 0-.4-.1-.8-.4-1-.3-.3-.8-.5-1.5-.7l-1.1-.3c-1-.3-1.7-.7-2.2-1.3-.5-.6-.7-1.3-.7-2.2 0-1 .4-1.8 1.1-2.4.7-.6 1.7-.9 2.9-.9.7 0 1.3.1 1.9.3.6.2 1 .4 1.4.7.2.2.3.4.1.6l-.5.9c-.1.3-.3.3-.6.2-.3-.2-.7-.4-1.1-.5-.4-.1-.8-.2-1.3-.2-.6 0-1 .1-1.4.4-.3.3-.5.6-.5 1.1 0 .4.1.7.4 1 .3.3.8.5 1.4.7l1.1.3c1 .3 1.8.7 2.3 1.3.5.6.8 1.4.8 2.3 0 1-.4 1.9-1.1 2.5-.8.6-1.8.9-3 .9h-.1z"/><path fill="#fff" d="M37.5 30.2c-5.3 3.7-13 5.7-19.6 5.7-9.3 0-17.6-3.4-23.9-9.1-.5-.4-.1-1 .5-.7 6.8 3.9 15.2 6.3 23.9 6.3 5.8 0 12.3-1.2 18.2-3.7.9-.4 1.6.6.9 1.5z"/><path fill="#fff" d="M39.7 27.7c-.7-.9-4.5-.4-6.2-.2-.5.1-.6-.4-.1-.7 3-2.1 8-.1 8.6.7.5.8-.1 6.4-3 9.1-.4.4-.8.2-.6-.3.6-1.6 2-5.7 1.3-8.6z"/></svg>
+        </span>
+        <span class="notif-company">Amazon</span>
+        <span class="notif-badge-new">New</span>
+      </div>
+      <div class="notif-role">SDE-1 (Campus Hire) – AWS Division</div>
+      <div class="notif-meta">📍 Hyderabad, India &nbsp;·&nbsp; 💰 ₹20–32 LPA &nbsp;·&nbsp; 5h ago</div>
+    </div>
+    <!-- Microsoft -->
+    <div class="notif-item">
+      <div class="notif-item-head">
+        <span style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:#fff;border-radius:8px;flex-shrink:0;">
+          <svg width="18" height="18" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>
+        </span>
+        <span class="notif-company">Microsoft</span>
+        <span class="notif-badge-new">New</span>
+      </div>
+      <div class="notif-role">Junior Software Developer – Azure</div>
+      <div class="notif-meta">📍 Noida, India &nbsp;·&nbsp; 💰 ₹16–24 LPA &nbsp;·&nbsp; 8h ago</div>
+    </div>
+    <!-- Infosys -->
+    <div class="notif-item">
+      <div class="notif-item-head">
+        <span style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:#007CC3;border-radius:8px;flex-shrink:0;font-family:'Syne',sans-serif;font-weight:800;font-size:.65rem;color:#fff;letter-spacing:-.5px;">INFO<br>SYS</span>
+        <span class="notif-company">Infosys</span>
+      </div>
+      <div class="notif-role">Systems Engineer – Fresher Batch 2025</div>
+      <div class="notif-meta">📍 Multiple Locations &nbsp;·&nbsp; 💰 ₹3.6–6.5 LPA &nbsp;·&nbsp; 1d ago</div>
+    </div>
+    <!-- TCS -->
+    <div class="notif-item">
+      <div class="notif-item-head">
+        <span style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:#000;border-radius:8px;flex-shrink:0;">
+          <svg width="22" height="14" viewBox="0 0 60 30"><text x="2" y="22" font-family="Arial,sans-serif" font-weight="900" font-size="22" fill="#fff">TCS</text></svg>
+        </span>
+        <span class="notif-company">TCS</span>
+      </div>
+      <div class="notif-role">Digital Trainee – Data Analytics</div>
+      <div class="notif-meta">📍 Chennai, Pune &nbsp;·&nbsp; 💰 ₹3.5–7 LPA &nbsp;·&nbsp; 1d ago</div>
+    </div>
+    <!-- Wipro -->
+    <div class="notif-item">
+      <div class="notif-item-head">
+        <span style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:#341C6E;border-radius:8px;flex-shrink:0;">
+          <svg width="22" height="16" viewBox="0 0 60 28"><text x="1" y="21" font-family="Arial,sans-serif" font-weight="800" font-size="19" fill="#fff">wipro</text></svg>
+        </span>
+        <span class="notif-company">Wipro</span>
+      </div>
+      <div class="notif-role">Project Engineer – ML/AI Track</div>
+      <div class="notif-meta">📍 Bengaluru, India &nbsp;·&nbsp; 💰 ₹4–8 LPA &nbsp;·&nbsp; 2d ago</div>
+    </div>
+    <!-- Accenture -->
+    <div class="notif-item">
+      <div class="notif-item-head">
+        <span style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:#A100FF;border-radius:8px;flex-shrink:0;">
+          <svg width="18" height="18" viewBox="0 0 40 40"><polygon points="20,4 36,32 4,32" fill="none" stroke="#fff" stroke-width="4"/><circle cx="20" cy="22" r="4" fill="#fff"/></svg>
+        </span>
+        <span class="notif-company">Accenture</span>
+      </div>
+      <div class="notif-role">Associate Software Engineer</div>
+      <div class="notif-meta">📍 Mumbai, Bengaluru &nbsp;·&nbsp; 💰 ₹4.5–9 LPA &nbsp;·&nbsp; 2d ago</div>
+    </div>
+    <!-- Flipkart -->
+    <div class="notif-item">
+      <div class="notif-item-head">
+        <span style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:#2874F0;border-radius:8px;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 40 40"><text x="4" y="28" font-family="Arial,sans-serif" font-weight="900" font-size="22" fill="#FFD700">F</text></svg>
+        </span>
+        <span class="notif-company">Flipkart</span>
+      </div>
+      <div class="notif-role">Software Development Engineer I</div>
+      <div class="notif-meta">📍 Bengaluru, India &nbsp;·&nbsp; 💰 ₹12–22 LPA &nbsp;·&nbsp; 3d ago</div>
+    </div>
+  </div>
+  <div style="padding:14px 16px;border-top:1px solid rgba(255,255,255,.07);text-align:center;">
+    <span style="color:var(--muted);font-size:.8rem;">Tap any alert to apply &nbsp;·&nbsp; Updated daily</span>
+  </div>
+
+  <!-- STARTUP IDEAS SECTION inside panel -->
+  <div style="border-top:2px solid rgba(79,142,247,.15);padding:0 12px 16px;">
+    <div style="padding:18px 4px 14px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:1.1rem;">💡</span>
+      <span style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--sky);">Startup Ideas</span>
+      <span style="margin-left:auto;font-size:.68rem;background:rgba(79,142,247,.15);color:var(--sky);border:1px solid rgba(79,142,247,.3);padding:2px 8px;border-radius:50px;font-weight:700;text-transform:uppercase;">New</span>
+    </div>
+    <p style="font-size:.78rem;color:var(--muted);margin-bottom:14px;padding:0 4px;">Two curated startup ideas from our AI. Got your own? Share it — we may collaborate!</p>
+
+    <!-- Idea 1 -->
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(79,142,247,.12);border-radius:12px;padding:14px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;">
+        <span style="font-size:1.25rem;">🤖</span>
+        <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;">SkillBridge AI</span>
+        <span style="margin-left:auto;font-size:.62rem;background:rgba(0,229,195,.1);color:var(--accent);border:1px solid rgba(0,229,195,.25);padding:2px 7px;border-radius:50px;font-weight:700;">EdTech</span>
+      </div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.55;">AI micro-learning platform that identifies skill gaps in freshers and delivers 5-min personalised daily lessons. Integrates with LinkedIn & GitHub. Targets 15M+ Indian engineering graduates.</div>
+    </div>
+
+    <!-- Idea 2 -->
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(79,142,247,.12);border-radius:12px;padding:14px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;">
+        <span style="font-size:1.25rem;">🌾</span>
+        <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;">AgroVision</span>
+        <span style="margin-left:auto;font-size:.62rem;background:rgba(0,229,195,.1);color:var(--accent);border:1px solid rgba(0,229,195,.25);padding:2px 7px;border-radius:50px;font-weight:700;">AgriTech</span>
+      </div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.55;">Drone + AI crop health monitoring SaaS. Detects disease & pests via computer vision. SMS alerts in regional languages for tier-2/3 farmers at ₹500/month subscription.</div>
+    </div>
+
+    <!-- Share your idea -->
+    <div style="background:rgba(26,71,200,.08);border:1.5px dashed rgba(79,142,247,.3);border-radius:12px;padding:14px;">
+      <div style="font-size:.8rem;font-weight:700;color:var(--accent);margin-bottom:10px;">🚀 Share Your Startup Idea</div>
+      <input id="np-startup-name" placeholder="Startup name" style="width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(79,142,247,.2);color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;padding:9px 12px;border-radius:9px;outline:none;margin-bottom:8px;box-sizing:border-box;" onfocus="this.style.borderColor='var(--sky)'" onblur="this.style.borderColor='rgba(79,142,247,.2)'">
+      <textarea id="np-startup-desc" placeholder="Describe your idea — problem, solution, target market..." style="width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(79,142,247,.2);color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;padding:9px 12px;border-radius:9px;outline:none;resize:vertical;min-height:72px;margin-bottom:10px;box-sizing:border-box;" onfocus="this.style.borderColor='var(--sky)'" onblur="this.style.borderColor='rgba(79,142,247,.2)'"></textarea>
+      <button onclick="submitPanelStartup()" style="width:100%;background:var(--gradient);color:#fff;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;padding:10px;border-radius:9px;border:none;cursor:pointer;">Submit for Collaboration →</button>
+      <div id="np-startup-msg" style="display:none;margin-top:10px;background:rgba(0,229,195,.08);border:1px solid rgba(0,229,195,.25);border-radius:9px;padding:10px 12px;font-size:.78rem;color:var(--accent);line-height:1.5;">🎉 <strong>Great idea!</strong> We'll review within 48 hrs. If it aligns with market opportunity, we'll connect you with our startup ecosystem for collaboration!</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ====== STATE ======
+const appState = {
+  user: null,
+  profile: null,
+  answers: [],
+};
+const fakeUsers = {};
+
+// ====== CAMERA ======
+let cameraStream = null;
+function toggleCamera(checkbox) {
+  const label = document.getElementById('cam-status-label');
+  const preview = document.getElementById('camera-preview');
+  if (checkbox.checked) {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        cameraStream = stream;
+        preview.srcObject = stream;
+        preview.style.display = 'block';
+        label.textContent = 'On';
+        label.className = 'cam-status on';
+      })
+      .catch(() => {
+        checkbox.checked = false;
+        label.textContent = 'Permission denied';
+        label.className = 'cam-status';
+        showToast('⚠️ Camera access denied. Please allow camera in browser settings.');
+      });
+  } else {
+    if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+    preview.style.display = 'none';
+    preview.srcObject = null;
+    label.textContent = 'Off';
+    label.className = 'cam-status';
+  }
+}
+function stopCamera() {
+  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  const preview = document.getElementById('camera-preview');
+  if (preview) { preview.style.display = 'none'; preview.srcObject = null; }
+  const toggle = document.getElementById('cam-toggle-input');
+  if (toggle) toggle.checked = false;
+  const label = document.getElementById('cam-status-label');
+  if (label) { label.textContent = 'Off'; label.className = 'cam-status'; }
+  // Also stop voice viz safely
+  if (vizInterval) { clearInterval(vizInterval); vizInterval = null; }
+}
+
+// ====== NOTIFICATIONS ======
+function openNotif() {
+  document.getElementById('notif-panel').classList.add('open');
+  document.getElementById('notif-overlay').classList.add('open');
+}
+function closeNotif() {
+  document.getElementById('notif-panel').classList.remove('open');
+  document.getElementById('notif-overlay').classList.remove('open');
+}
+
+// ====== NAV ======
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if (id !== 'pg-interview') stopCamera();
+  if (id === 'pg-interview') {
+    const iname = document.getElementById('interview-name');
+    if (iname) iname.textContent = appState.profile?.name || appState.user?.name || 'Student';
+    const dsb = document.getElementById('demo-start-box'); if(dsb) dsb.style.display = 'block';
+    const isec = document.getElementById('interview-section'); if(isec) isec.style.display = 'none';
+    const abox = document.getElementById('analysis-box'); if(abox) abox.style.display = 'none';
+    window.speechSynthesis && window.speechSynthesis.cancel();
+    currentQIdx = 0; interviewQuestions = [];
+  }
+  if (id === 'pg-tracker') {
+    document.getElementById('tracker-name').textContent = appState.profile?.name || appState.user?.name || 'Student';
+    ['jobs-section','skills-gap','resources-box','challenge-box','compare-box','blast-box'].forEach(elId => {
+      const el = document.getElementById(elId);
+      if (el) el.style.display = 'none';
+    });
+    const rl = document.getElementById('resume-lbl'); if(rl) rl.textContent = '';
+    const cl = document.getElementById('cert-lbl'); if(cl) cl.textContent = '';
+  }
+  if (id === 'pg-dashboard') {
+    document.getElementById('dash-name').textContent = 'Hello, ' + (appState.profile?.name || appState.user?.name || 'Student') + '!';
+  }
+}
+
+// ====== AUTH ======
+function switchAuthTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
+  document.getElementById('login-form').style.display = tab==='login' ? 'block' : 'none';
+  document.getElementById('signup-form').style.display = tab==='signup' ? 'block' : 'none';
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
+  const user = fakeUsers[email];
+  if (!user || user.password !== pass) {
+    err.style.display = 'block'; return;
+  }
+  err.style.display = 'none';
+  appState.user = user;
+  showPage('pg-profile');
+  prefillProfileFromUser();
+}
+
+function doSignup() {
+  const name = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const phone = document.getElementById('su-phone').value.trim();
+  const pass = document.getElementById('su-pass').value;
+  const err = document.getElementById('su-error');
+  if (!name || !email || !phone || !pass) { err.style.display='block'; return; }
+  err.style.display='none';
+  fakeUsers[email] = { name, email, phone, password: pass };
+  appState.user = fakeUsers[email];
+  showToast('Account created successfully! 🎉');
+  showPage('pg-profile');
+  prefillProfileFromUser();
+}
+
+function prefillProfileFromUser() {
+  if (appState.user) {
+    document.getElementById('p-name').value = appState.user.name || '';
+    document.getElementById('p-phone').value = appState.user.phone || '';
+    document.getElementById('p-email').value = appState.user.email || '';
+  }
+}
+
+function doLogout() {
+  appState.user = null;
+  appState.profile = null;
+  showPage('pg-auth');
+  switchAuthTab('login');
+  document.getElementById('login-email').value='';
+  document.getElementById('login-pass').value='';
+}
+
+// FORGOT
+function openForgot() { document.getElementById('forgot-modal').classList.add('open'); }
+function closeForgot() { document.getElementById('forgot-modal').classList.remove('open'); }
+function sendReset() {
+  const e = document.getElementById('forgot-email').value.trim();
+  if (!e) return;
+  closeForgot();
+  showToast('Password reset link sent to ' + e + ' 📧');
+}
+
+// TOAST
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ====== PROFILE ======
+function addTag(event, wrapId, listId) {
+  if (event.key !== 'Enter') return;
+  event.preventDefault();
+  const wrap = document.getElementById(wrapId);
+  const input = wrap.querySelector('input');
+  const val = input.value.trim();
+  if (!val) return;
+  const tag = document.createElement('span');
+  tag.className = 'tag';
+  tag.innerHTML = val + '<span class="tag-remove" onclick="this.parentElement.remove()">×</span>';
+  wrap.insertBefore(tag, input);
+  input.value = '';
+}
+
+function getTags(wrapId) {
+  return [...document.getElementById(wrapId).querySelectorAll('.tag')].map(t => t.textContent.replace('×','').trim());
+}
+
+function saveProfile() {
+  const name = document.getElementById('p-name').value.trim();
+  const phone = document.getElementById('p-phone').value.trim();
+  const email = document.getElementById('p-email').value.trim();
+  const grad = document.getElementById('p-grad').value;
+  const college = document.getElementById('p-college').value.trim();
+  const dept = document.getElementById('p-dept').value;
+  if (!name || !dept) { showToast('⚠️ Please fill Name and Department at minimum.'); return; }
+  appState.profile = {
+    name, phone, email, grad, college, dept,
+    skills: getTags('skills-wrap'),
+    certs: getTags('cert-wrap'),
+    internships: getTags('intern-wrap'),
+    hackathons: getTags('hack-wrap'),
+  };
+  showToast('Profile saved! ✅');
+  showPage('pg-dashboard');
+}
+
+function profileNav(el) {
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ====== INTERVIEW ======
+const deptQuestions = {
+  'Computer Science & Engineering': [
+    "Explain the difference between a process and a thread, and when you'd use each.",
+    "What is a binary search tree? Walk me through inserting a node.",
+    "Describe a project you built. What was the biggest technical challenge?"
+  ],
+  'Data Science': [
+    "What is the difference between supervised and unsupervised learning?",
+    "How would you handle class imbalance in a dataset?",
+    "Explain a data science project you worked on and what insights you derived."
+  ],
+  'Electronics & Communication': [
+    "Explain the difference between AM and FM modulation.",
+    "What is VLSI design and what are its challenges?",
+    "Describe a circuit design project you have worked on."
+  ],
+  'default': [
+    "Tell me about yourself and your academic background.",
+    "What are your core technical skills and how did you develop them?",
+    "Describe a challenging problem you solved. What was your approach?"
+  ]
+};
+
+const hesitationWords = ['um','uh','like','you know','basically','kind of','sort of','actually','literally','honestly'];
+
+let currentQIdx = 0;
+let interviewQuestions = [];
+let ttsUtterance = null;
+
+function speakText(text, onEnd) {
+  if (!window.speechSynthesis) return onEnd && onEnd();
+  window.speechSynthesis.cancel();
+  ttsUtterance = new SpeechSynthesisUtterance(text);
+  ttsUtterance.lang = 'en-IN';
+  ttsUtterance.rate = 0.92;
+  ttsUtterance.pitch = 1.05;
+  // Try to pick a clear voice
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('google')) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+  if (preferred) ttsUtterance.voice = preferred;
+  ttsUtterance.onend = onEnd || null;
+  window.speechSynthesis.speak(ttsUtterance);
+}
+
+function startDemo() {
+  document.getElementById('demo-start-box').style.display = 'none';
+  const dept = appState.profile?.dept || 'default';
+  interviewQuestions = deptQuestions[dept] || deptQuestions['default'];
+  currentQIdx = 0;
+  document.getElementById('interview-section').style.display = 'block';
+  document.getElementById('submit-btn').style.display = 'none';
+  renderCurrentQuestion();
+}
+
+function renderCurrentQuestion() {
+  const q = interviewQuestions[currentQIdx];
+  const total = interviewQuestions.length;
+  const container = document.getElementById('q-container');
+  const isLast = currentQIdx === total - 1;
+
+  container.innerHTML = `
+    <div class="interview-q-box" style="margin-bottom:16px;animation:fadeIn .4s ease;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div class="q-label">Question ${currentQIdx+1} of ${total}</div>
+        <div id="tts-indicator" style="display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--accent);">
+          <span id="tts-icon" style="font-size:1.1rem;">🔊</span>
+          <span id="tts-label">Speaking...</span>
+        </div>
+      </div>
+      <div class="q-text" id="q-text-display" style="opacity:0;transition:opacity .5s;">${q}</div>
+      <div style="margin-top:18px;background:rgba(0,229,195,.05);border:1px solid rgba(0,229,195,.15);border-radius:12px;padding:14px 16px;font-size:.85rem;color:var(--muted);">
+        🎙️ Listen to the question, then type or dictate your answer below.
+      </div>
+      <div style="margin-top:14px;">
+        <textarea class="answer-area" id="ans-${currentQIdx}" placeholder="Your answer here..." style="min-height:120px;"></textarea>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <button class="voice-btn idle" id="qvoice-${currentQIdx}" onclick="toggleQVoice(${currentQIdx})" style="font-size:.8rem;padding:7px 14px;">🎙️ Dictate Answer</button>
+          <span class="voice-transcript" id="qvt-${currentQIdx}" style="flex:1;"></span>
+        </div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <button class="voice-btn idle" id="replay-btn" onclick="replayQuestion()" style="font-size:.8rem;padding:7px 16px;">🔁 Replay Question</button>
+        <button class="btn-primary" style="font-size:.9rem;padding:12px 28px;" onclick="${isLast ? 'submitAnswers()' : 'nextQuestion()'}">
+          ${isLast ? 'Submit & Analyse 🧠' : 'Next Question →'}
+        </button>
+      </div>
+    </div>`;
+
+  // Speak the question after a short delay, then reveal text
+  setTimeout(() => {
+    document.getElementById('tts-indicator').style.display = 'flex';
+    speakText(q, () => {
+      const lbl = document.getElementById('tts-label');
+      const ico = document.getElementById('tts-icon');
+      if (lbl) lbl.textContent = 'Done';
+      if (ico) ico.textContent = '✅';
+    });
+    // Reveal text while speaking
+    setTimeout(() => {
+      const el = document.getElementById('q-text-display');
+      if (el) el.style.opacity = '1';
+    }, 600);
+  }, 300);
+}
+
+function replayQuestion() {
+  const q = interviewQuestions[currentQIdx];
+  const lbl = document.getElementById('tts-label');
+  const ico = document.getElementById('tts-icon');
+  if (lbl) lbl.textContent = 'Speaking...';
+  if (ico) ico.textContent = '🔊';
+  speakText(q, () => {
+    if (lbl) lbl.textContent = 'Done';
+    if (ico) ico.textContent = '✅';
+  });
+}
+
+function nextQuestion() {
+  // Stop any active dictation for current q
+  if (qVoiceRecs[currentQIdx] && qVoiceRecs[currentQIdx].active) {
+    qVoiceRecs[currentQIdx].rec.stop();
+    qVoiceRecs[currentQIdx].active = false;
+  }
+  // Save answer
+  const ta = document.getElementById('ans-'+currentQIdx);
+  if (ta) appState['savedAns'+currentQIdx] = ta.value;
+  currentQIdx++;
+  renderCurrentQuestion();
+}
+
+function submitAnswers() {
+  // Cancel TTS
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  // Stop any active dictation
+  Object.values(qVoiceRecs).forEach(r => { if(r && r.active) { r.rec.stop(); r.active = false; } });
+
+  const answers = [];
+  for(let i=0; i<interviewQuestions.length; i++){
+    const ta = document.getElementById('ans-'+i);
+    answers.push(ta ? ta.value.trim() : (appState['savedAns'+i]||''));
+  }
+  const totalText = answers.join(' ').toLowerCase();
+  const wordCount = totalText.split(/\s+/).filter(Boolean).length || 1;
+  let hesCount = 0;
+  hesitationWords.forEach(w => {
+    const re = new RegExp('\\b'+w+'\\b','g');
+    const m = totalText.match(re);
+    if (m) hesCount += m.length;
+  });
+  const hesPercent = Math.min(Math.round((hesCount/wordCount)*100*5), 60);
+  const avgLen = answers.reduce((s,a)=>s+a.split(/\s+/).filter(Boolean).length,0)/answers.length;
+  const confidence = Math.min(Math.max(Math.round(45 + (avgLen/3) + Math.random()*10), 30), 95);
+  const stress = Math.min(Math.max(Math.round(80 - confidence + hesPercent/2 + Math.random()*8), 10), 75);
+
+  document.getElementById('analysis-box').style.display = 'block';
+  document.getElementById('interview-section').style.display = 'none';
+  document.getElementById('demo-start-box').style.display = 'none';
+
+  setTimeout(() => {
+    animateVal('m-confidence', confidence, '%');
+    animateVal('m-stress', stress, '%');
+    animateVal('m-hesitation', hesPercent, '%');
+    document.getElementById('mf-confidence').style.width = confidence+'%';
+    document.getElementById('mf-stress').style.width = stress+'%';
+    document.getElementById('mf-hesitation').style.width = hesPercent+'%';
+    const suggestions = [];
+
+    // Confidence feedback
+    if (confidence >= 75) {
+      suggestions.push({icon:'✅', area:'Confidence', status:'good', text:'Your confidence level is great! You are speaking clearly and with good energy. Keep this up in real interviews too.'});
+    } else if (confidence >= 50) {
+      suggestions.push({icon:'⚠️', area:'Confidence', status:'warn', text:'Your confidence is average. You are hesitating a little while answering. Try practising in front of a mirror or record yourself speaking. The more you practise, the more natural it will feel.'});
+    } else {
+      suggestions.push({icon:'❌', area:'Confidence', status:'bad', text:'Your confidence is low right now. This is very common — do not worry. Start by practising simple answers daily. Speak slowly and clearly. Join a group discussion or debate club to get comfortable talking in front of others.'});
+    }
+
+    // Stress feedback
+    if (stress <= 25) {
+      suggestions.push({icon:'✅', area:'Stress Level', status:'good', text:'You handled the interview very calmly. Low stress means you are well prepared. Great job staying cool!'});
+    } else if (stress <= 50) {
+      suggestions.push({icon:'⚠️', area:'Stress Level', status:'warn', text:'You showed some stress during the interview. This is normal. Before your real interview, take 5 deep breaths, sleep well the night before, and remember — the interviewer wants you to succeed.'});
+    } else {
+      suggestions.push({icon:'❌', area:'Stress Level', status:'bad', text:'You seemed quite stressed during the interview. The main reason is usually lack of preparation. Try giving more mock interviews at home. Treat every practice session like the real thing. Over time, your stress will reduce automatically.'});
+    }
+
+    // Hesitation feedback
+    if (hesPercent <= 10) {
+      suggestions.push({icon:'✅', area:'Filler Words', status:'good', text:'You used very few filler words like "um", "uh", or "basically". Your speech was clean and professional. Well done!'});
+    } else if (hesPercent <= 25) {
+      suggestions.push({icon:'⚠️', area:'Filler Words', status:'warn', text:'You used some filler words like "um", "uh", or "like". These happen when we are thinking but keep talking. Instead, just pause for 1–2 seconds silently. A pause sounds more confident than a filler word.'});
+    } else {
+      suggestions.push({icon:'❌', area:'Filler Words', status:'bad', text:'You used a lot of filler words. This makes it hard for the interviewer to focus on your answer. Tip: slow down. It is okay to think before you speak. Practice reading out loud for 10 minutes every day — this trains your brain to speak fluently without fillers.'});
+    }
+
+    // Answer length / detail feedback
+    if (avgLen >= 40) {
+      suggestions.push({icon:'✅', area:'Answer Detail', status:'good', text:'Your answers were detailed and well-explained. You clearly understood the questions and gave complete responses. This is exactly what interviewers want!'});
+    } else if (avgLen >= 20) {
+      suggestions.push({icon:'⚠️', area:'Answer Detail', status:'warn', text:'Your answers were okay but a bit short. Try to explain your thinking step by step. Use the STAR method: first describe the Situation, then the Task, then what Action you took, then the Result. This makes your answer much stronger.'});
+    } else {
+      suggestions.push({icon:'❌', area:'Answer Detail', status:'bad', text:'Your answers were too short. Interviewers want to understand how you think. Even if you are not 100% sure, try to explain your approach. Say something like "I would first think about X, then check Y, and finally do Z." A structured answer always scores better than a one-line reply.'});
+    }
+
+    // Always-on tips
+    suggestions.push({icon:'💡', area:'Daily Practice', status:'tip', text:'Practice speaking for just 10 minutes every day. Answer one interview question out loud in front of a mirror or record a voice note. After 2 weeks, you will notice a big improvement in how naturally you speak.'});
+    suggestions.push({icon:'📖', area:'Technical Preparation', status:'tip', text:'Revise the core concepts of your department every week. Do not try to memorise answers — understand the logic behind them. When you truly understand something, explaining it becomes easy and natural.'});
+
+    const statusColors = { good:'var(--success)', warn:'var(--gold)', bad:'var(--danger)', tip:'var(--sky)' };
+    const list = document.getElementById('suggestions-list');
+    list.innerHTML = suggestions.map(s=>`
+      <li style="border-left:3px solid ${statusColors[s.status]};padding-left:14px;margin-bottom:4px;">
+        <span class="suggest-icon">${s.icon}</span>
+        <span><strong style="color:${statusColors[s.status]}">${s.area}:</strong> ${s.text}</span>
+      </li>`).join('');
+  }, 400);
+}
+
+function animateVal(id, target, suffix) {
+  let cur = 0;
+  const el = document.getElementById(id);
+  const step = target / 40;
+  const interval = setInterval(() => {
+    cur = Math.min(cur + step, target);
+    el.textContent = Math.round(cur) + suffix;
+    if (cur >= target) clearInterval(interval);
+  }, 30);
+}
+
+// ====== TRACKER ======
+function triggerUpload(id) { document.getElementById(id).click(); }
+function onFileUpload(input, labelId) {
+  const files = [...input.files].map(f=>f.name).join(', ');
+  document.getElementById(labelId).textContent = '✅ ' + files;
+}
+
+const jobData = [
+  { id:1, emoji:'💻', title:'Software Engineer', company:'Google', tags:['Python','DSA','System Design'], match:88 },
+  { id:2, emoji:'📊', title:'Data Analyst', company:'Deloitte', tags:['SQL','Excel','Python','Tableau'], match:74 },
+  { id:3, emoji:'🤖', title:'ML Engineer', company:'Amazon', tags:['ML','TensorFlow','Python','Statistics'], match:81 },
+  { id:4, emoji:'🌐', title:'Frontend Developer', company:'Infosys', tags:['React','JavaScript','CSS'], match:67 },
+  { id:5, emoji:'🔒', title:'Cybersecurity Analyst', company:'TCS', tags:['Network Security','Linux','Python'], match:72 },
+];
+
+const resourceMap = {
+  1: [
+    { thumb:'▶️', title:'DSA Full Course – Striver A2Z Sheet', channel:'take U forward', lang:'English & Hindi', url:'https://www.youtube.com/playlist?list=PLgUwDviBIf0oF6QL8m22w1hIDC1vJ_BHz' },
+    { thumb:'▶️', title:'Data Structures & Algorithms in Python', channel:'freeCodeCamp.org', lang:'English', url:'https://www.youtube.com/watch?v=pkYVOmU3MgA' },
+    { thumb:'▶️', title:'System Design for Beginners to Advanced', channel:'Gaurav Sen', lang:'English', url:'https://www.youtube.com/playlist?list=PLMCXHnjXnTnvo6alSjVkgxV-VH6EPyvoX' },
+  ],
+  2: [
+    { thumb:'▶️', title:'SQL Full Course for Beginners', channel:'Alex The Analyst', lang:'English', url:'https://www.youtube.com/playlist?list=PLUaB-1hjhk8FE_XZ87vPPSfHqb6OcM0cF' },
+    { thumb:'▶️', title:'Python for Data Analysis – Full Course', channel:'Krish Naik', lang:'English & Hindi', url:'https://www.youtube.com/playlist?list=PLZoTAELRMXVPBTrWtJkn3wWQxZkmTXGwe' },
+    { thumb:'▶️', title:'Data Analytics Full Course', channel:'WsCube Tech', lang:'Hindi', url:'https://www.youtube.com/playlist?list=PLjVLYmrlmjGdmPrz0Lx7smkd0qIKHInOF' },
+  ],
+  3: [
+    { thumb:'▶️', title:'Machine Learning Full Course – Beginner to Pro', channel:'Krish Naik', lang:'English & Hindi', url:'https://www.youtube.com/playlist?list=PLZoTAELRMXVPBTrWtJkn3wWQxZkmTXGwe' },
+    { thumb:'▶️', title:'Neural Networks & Deep Learning – Full Course', channel:'3Blue1Brown', lang:'English', url:'https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi' },
+    { thumb:'▶️', title:'Machine Learning with Python – Practical', channel:'Sentdex', lang:'English', url:'https://www.youtube.com/playlist?list=PLQVvvaa0QuDfKTOs3Keq_kaG2P55YRn5v' },
+  ],
+  4: [
+    { thumb:'▶️', title:'React JS Full Course for Beginners', channel:'Traversy Media', lang:'English', url:'https://www.youtube.com/watch?v=w7ejDZ8SWv8' },
+    { thumb:'▶️', title:'JavaScript Full Course – Zero to Expert', channel:'Akshay Saini', lang:'English', url:'https://www.youtube.com/playlist?list=PLlasXeu85E9cQ32gLCvAvr9vNaUccPVNP' },
+    { thumb:'▶️', title:'Full Stack Web Development Bootcamp', channel:'JavaScript Mastery', lang:'English', url:'https://www.youtube.com/c/JavaScriptMastery/playlists' },
+  ],
+  5: [
+    { thumb:'▶️', title:'Ethical Hacking Full Course – Beginner to Advanced', channel:'NetworkChuck', lang:'English', url:'https://www.youtube.com/playlist?list=PLIhvC56v63IIJZRa3lzK6IeBQOH_VFjUQ' },
+    { thumb:'▶️', title:'Cybersecurity for Beginners – Complete Roadmap', channel:'SimpliLearn', lang:'English & Hindi', url:'https://www.youtube.com/watch?v=PlHnamdDVhQ' },
+    { thumb:'▶️', title:'Linux & Networking for Hackers', channel:'HackerSploit', lang:'English', url:'https://www.youtube.com/c/HackerSploit/playlists' },
+  ],
+};
+
+const gapMap = {
+  1: ['Advanced System Design', 'Competitive Programming (Codeforces/LeetCode 200+)'],
+  2: ['Tableau / Power BI', 'Advanced SQL (Window Functions, CTEs)'],
+  3: ['PyTorch / Keras proficiency', 'MLOps & Model Deployment'],
+  4: ['TypeScript', 'Next.js & SSR concepts'],
+  5: ['CEH Certification', 'Penetration Testing Tools (Metasploit, Burp Suite)'],
+};
+
+function loadJobs() {
+  document.getElementById('jobs-section').style.display = 'block';
+  const list = document.getElementById('job-list');
+  list.innerHTML = jobData.map(j => `
+    <div class="job-card" id="jc-${j.id}" onclick="selectJob(${j.id})">
+      <div class="job-logo">${j.emoji}</div>
+      <div class="job-info">
+        <div class="job-title">${j.title}</div>
+        <div class="job-company">${j.company}</div>
+        <div class="job-tags">${j.tags.map(t=>`<span class="job-tag">${t}</span>`).join('')}</div>
+      </div>
+      <div class="job-match">${j.match}%<div style="font-size:.65rem;color:var(--muted);font-weight:400">match</div></div>
+    </div>
+  `).join('');
+  list.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function selectJob(id) {
+  document.querySelectorAll('.job-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('jc-'+id).classList.add('selected');
+
+  // Gap
+  const gaps = gapMap[id] || [];
+  const gapBox = document.getElementById('skills-gap');
+  document.getElementById('gap-list').innerHTML = gaps.map(g=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+      <span style="color:var(--danger)">⚠️</span>
+      <span style="font-size:.9rem;">${g}</span>
+    </div>`).join('');
+  gapBox.style.display = 'block';
+
+  // Resources
+  const res = resourceMap[id] || [];
+  const resBox = document.getElementById('resources-box');
+  document.getElementById('resource-list').innerHTML = res.map(r=>`
+    <div class="resource-card">
+      <div class="resource-thumb">${r.thumb}</div>
+      <div class="resource-info" style="flex:1;">
+        <div class="r-title">${r.title}</div>
+        <div class="r-channel">📺 ${r.channel}</div>
+        <div class="r-lang">🌐 ${r.lang}</div>
+        <a href="${r.url}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;background:rgba(255,79,0,.12);border:1px solid rgba(255,100,0,.3);color:#ff6b35;font-size:.75rem;font-weight:700;padding:5px 12px;border-radius:50px;text-decoration:none;transition:all .2s;" onmouseover="this.style.background='rgba(255,79,0,.22)'" onmouseout="this.style.background='rgba(255,79,0,.12)'">
+          ▶ Open Playlist / Channel
+        </a>
+      </div>
+    </div>`).join('');
+  resBox.style.display = 'block';
+
+  // Challenges
+  const dept = appState.profile?.dept || 'default';
+  const challenges = dailyChallenges[dept] || dailyChallenges['default'];
+  document.getElementById('daily-challenges').innerHTML = challenges.map((ch, i) => `
+    <div class="challenge-card">
+      <div class="ch-num">Challenge ${i+1} of 2 · Today</div>
+      <div class="ch-q">${ch.q}</div>
+      <div class="ch-tags">${ch.tags.map(t=>`<span class="ch-tag">${t}</span>`).join('')}</div>
+      <div style="margin-top:12px;">
+        <textarea style="width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(245,200,66,.2);color:var(--white);font-family:'DM Sans',sans-serif;font-size:.88rem;padding:10px 14px;border-radius:10px;outline:none;resize:vertical;min-height:70px;" placeholder="Write your answer here..."></textarea>
+      </div>
+    </div>`).join('');
+  document.getElementById('challenge-box').style.display = 'block';
+
+  // Competitive analysis
+  document.getElementById('compare-box').style.display = 'block';
+
+  // Blast
+  setTimeout(() => {
+    const blast = document.getElementById('blast-box');
+    blast.style.display = 'block';
+    spawnConfetti();
+    blast.scrollIntoView({behavior:'smooth',block:'center'});
+  }, 400);
+}
+
+function spawnConfetti() {
+  const colors = ['#00e5c3','#4f8ef7','#f5c842','#ff4f6d','#fff'];
+  const container = document.getElementById('confetti-container');
+  container.innerHTML = '';
+  for (let i=0; i<24; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.cssText = `left:${Math.random()*100}%;top:0;background:${colors[i%colors.length]};animation-delay:${Math.random()*.8}s;animation-duration:${1.5+Math.random()}s;`;
+    container.appendChild(c);
+  }
+}
+
+// ====== VOICE DETECTION ======
+let voiceRecognition = null;
+let voiceActive = false;
+let vizInterval = null;
+let activeQVoiceIdx = null;
+
+function initVoice(onResult, onEnd) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { showToast('⚠️ Voice recognition not supported in this browser. Try Chrome.'); return null; }
+  const rec = new SR();
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.lang = 'en-IN';
+  rec.onresult = e => {
+    let transcript = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+    onResult(transcript);
+  };
+  rec.onend = onEnd;
+  rec.onerror = () => { showToast('⚠️ Voice error. Check microphone permissions.'); stopVizAnimation(); };
+  return rec;
+}
+
+function startVizAnimation() {
+  document.getElementById('voice-viz').style.opacity = '1';
+  vizInterval = setInterval(() => {
+    for (let i=0; i<6; i++) {
+      const el = document.getElementById('vb'+i);
+      if (el) el.style.height = (4 + Math.random()*20) + 'px';
+    }
+  }, 120);
+}
+function stopVizAnimation() {
+  if (vizInterval) { clearInterval(vizInterval); vizInterval = null; }
+  const viz = document.getElementById('voice-viz');
+  if (viz) viz.style.opacity = '0.3';
+  for (let i=0; i<6; i++) { const el=document.getElementById('vb'+i); if(el) el.style.height='6px'; }
+}
+
+function toggleVoice() {
+  const btn = document.getElementById('voice-btn');
+  const label = document.getElementById('voice-status-label');
+  const transcriptEl = document.getElementById('voice-transcript');
+  if (!btn || !label || !transcriptEl) return;
+  if (!voiceActive) {
+    voiceRecognition = initVoice(
+      t => { transcriptEl.textContent = t; },
+      () => { stopVoiceUI(btn, label); }
+    );
+    if (!voiceRecognition) return;
+    voiceRecognition.start();
+    voiceActive = true;
+    btn.className = 'voice-btn recording';
+    btn.textContent = '⏹️ Stop Voice';
+    label.textContent = 'Listening...';
+    label.className = 'cam-status on';
+    startVizAnimation();
+    showToast('🎙️ Microphone active — start speaking!');
+  } else {
+    voiceRecognition && voiceRecognition.stop();
+    voiceActive = false;
+    stopVoiceUI(btn, label);
+  }
+}
+
+function stopVoiceUI(btn, label) {
+  voiceActive = false;
+  if (btn) { btn.className = 'voice-btn idle'; btn.textContent = '🎙️ Start Voice'; }
+  if (label) { label.textContent = 'Off'; label.className = 'cam-status'; }
+  stopVizAnimation();
+}
+
+// Per-question voice dictation
+let qVoiceRecs = {};
+function toggleQVoice(idx) {
+  const btn = document.getElementById('qvoice-'+idx);
+  const transcript = document.getElementById('qvt-'+idx);
+  const textarea = document.getElementById('ans-'+idx);
+  if (qVoiceRecs[idx] && qVoiceRecs[idx].active) {
+    qVoiceRecs[idx].rec.stop();
+    qVoiceRecs[idx].active = false;
+    btn.className = 'voice-btn idle';
+    btn.textContent = '🎙️ Dictate Answer';
+    showToast('✅ Voice dictation stopped.');
+    return;
+  }
+  const rec = initVoice(
+    t => {
+      if (textarea) textarea.value = t;
+      if (transcript) transcript.textContent = '🎙️ ' + t;
+    },
+    () => {
+      btn.className = 'voice-btn idle';
+      btn.textContent = '🎙️ Dictate Answer';
+      if (qVoiceRecs[idx]) qVoiceRecs[idx].active = false;
+    }
+  );
+  if (!rec) return;
+  rec.start();
+  qVoiceRecs[idx] = { rec, active: true };
+  btn.className = 'voice-btn recording';
+  btn.textContent = '⏹️ Stop Dictation';
+  showToast('🎙️ Listening for Q' + (idx+1) + '...');
+}
+
+// ====== DAILY CHALLENGES DATA ======
+const dailyChallenges = {
+  'Computer Science & Engineering': [
+    { q: 'Given an array of integers, find all pairs that sum to a target value. Optimise for O(n) time complexity. Explain your approach step by step.', tags:['Arrays','HashMap','DSA'] },
+    { q: 'Design a URL shortener system like bit.ly. What database, caching strategy, and API design would you use? Consider 100M requests/day.', tags:['System Design','Scalability','API'] }
+  ],
+  'Data Science': [
+    { q: 'You have a dataset with 30% missing values in a key feature. Write the steps you would take to handle this — imputation, deletion, or model-based. Justify.', tags:['Data Cleaning','Statistics','ML'] },
+    { q: 'Explain precision vs recall and when you\'d prefer high recall over high precision. Give a real-world example for each.', tags:['Model Evaluation','Classification','ML'] }
+  ],
+  'Electronics & Communication': [
+    { q: 'Explain the working of a Phase-Locked Loop (PLL). Where is it used in modern communication systems?', tags:['PLL','Communication','Circuits'] },
+    { q: 'What is the Nyquist sampling theorem? What happens when sampling rate is below the Nyquist rate? Give a practical example.', tags:['Signal Processing','DSP','Theory'] }
+  ],
+  'default': [
+    { q: 'Describe a situation where you had to learn something completely new in a short time. What strategies did you use and what was the outcome?', tags:['Soft Skills','Learning','Communication'] },
+    { q: 'What is the difference between leadership and management? Give an example of when you demonstrated leadership in a team setting.', tags:['Leadership','Teamwork','HR'] }
+  ]
+};
+
+// ====== STARTUP SUBMIT (notification panel) ======
+function submitPanelStartup() {
+  const name = document.getElementById('np-startup-name');
+  const desc = document.getElementById('np-startup-desc');
+  const msg = document.getElementById('np-startup-msg');
+  if (!name || !desc) return;
+  if (!name.value.trim() || !desc.value.trim()) { showToast('⚠️ Please fill in both startup name and description.'); return; }
+  if (msg) msg.style.display = 'block';
+  name.value = '';
+  desc.value = '';
+  showToast('🚀 Startup idea submitted successfully!');
+}
+</script>
+</body>
+</html>
