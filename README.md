@@ -1,2 +1,19 @@
 # Placient-AI
-Placient AI helps students prepare for placements using artificial intelligence. The AI Interview Analyzer evaluates body language, confidence, stress, and speaking skills to provide feedback. The AI Placement Tracker stores and monitors performance data, helping students track progress and improve their interview skills effectively.
+
+## Overview
+Placient-AI is an AI-powered placement preparation platform that helps students improve their interview and resume skills.
+
+## Features
+- Resume Analysis
+- Interview Preparation
+- AI-Based Feedback
+- Student Performance Insights
+
+## Technologies Used
+- HTML
+- CSS
+- JavaScript
+- Artificial Intelligence
+
+## Author
+Divya Sri Balla
